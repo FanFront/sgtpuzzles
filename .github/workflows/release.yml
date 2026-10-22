@@ -1,0 +1,154 @@
+name: Publish Android release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build, sign, and publish APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out release commit and history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate release tag and calculate Android version
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor HEAD refs/remotes/origin/main; then
+            echo "::error::The release tag must point to a commit in main"
+            exit 1
+          fi
+
+          tag="${GITHUB_REF_NAME}"
+          if [[ ! "${tag}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Expected a semantic version tag such as v1.0.0"
+            exit 1
+          fi
+          major="${BASH_REMATCH[1]}"
+          minor="${BASH_REMATCH[2]}"
+          patch="${BASH_REMATCH[3]}"
+          if (( ${#major} > 4 || ${#minor} > 3 || ${#patch} > 3 )); then
+            echo "::error::Version too large (minor and patch must be <= 999)"
+            exit 1
+          fi
+          version_code=$(( 10#${major} * 1000000 + 10#${minor} * 1000 + 10#${patch} ))
+          if (( version_code <= 149 || version_code > 2100000000 )); then
+            echo "::error::Computed versionCode ${version_code} is outside the allowed release range"
+            exit 1
+          fi
+          echo "SGT_RELEASE_VERSION_CODE=${version_code}" >> "${GITHUB_ENV}"
+          echo "SGT_RELEASE_VERSION_NAME=${tag#v}" >> "${GITHUB_ENV}"
+          echo "Release ${tag} -> Android versionCode ${version_code}"
+
+      - name: Verify signing secrets
+        shell: bash
+        env:
+          ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
+          ANDROID_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
+          ANDROID_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for name in ANDROID_RELEASE_KEYSTORE_BASE64 ANDROID_RELEASE_STORE_PASSWORD ANDROID_RELEASE_KEY_ALIAS ANDROID_RELEASE_KEY_PASSWORD; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::Missing GitHub Actions secret: ${name} (see docs/RELEASING.md)"
+              exit 1
+            fi
+          done
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Install Android build tools, CMake, and NDK
+        run: |
+          sdkmanager --install \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "cmake;3.22.1" \
+            "ndk;29.0.14206865"
+
+      - name: Set up Gradle and cache
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build unsigned release APK and run unit tests
+        run: ./gradlew --no-daemon --stacktrace :app:assembleRelease :app:testDebugUnitTest
+
+      - name: Align, sign, and verify the release APK
+        shell: bash
+        env:
+          ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
+          ANDROID_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
+          ANDROID_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          umask 077
+          keystore="${RUNNER_TEMP}/sgtpuzzles-release.jks"
+          trap 'rm -f "${keystore}"' EXIT
+          printf '%s' "${ANDROID_RELEASE_KEYSTORE_BASE64}" | base64 --decode > "${keystore}"
+
+          shopt -s nullglob
+          unsigned=(app/build/outputs/apk/release/*-unsigned.apk)
+          if (( ${#unsigned[@]} != 1 )); then
+            echo "::error::Expected exactly one unsigned release APK"
+            exit 1
+          fi
+          mkdir -p dist
+          apk="dist/sgtpuzzles-${GITHUB_REF_NAME}.apk"
+          tools="${ANDROID_HOME}/build-tools/36.0.0"
+          "${tools}/zipalign" -P 16 -f 4 "${unsigned[0]}" "${RUNNER_TEMP}/aligned.apk"
+          "${tools}/apksigner" sign \
+            --ks "${keystore}" \
+            --ks-key-alias "${ANDROID_RELEASE_KEY_ALIAS}" \
+            --ks-pass env:ANDROID_RELEASE_STORE_PASSWORD \
+            --key-pass env:ANDROID_RELEASE_KEY_PASSWORD \
+            --out "${apk}" "${RUNNER_TEMP}/aligned.apk"
+          "${tools}/zipalign" -c -P 16 4 "${apk}"
+          "${tools}/apksigner" verify --min-sdk-version 21 --verbose --print-certs "${apk}"
+
+          badge=$("${tools}/aapt" dump badging "${apk}")
+          expected="name='name.boyle.chris.sgtpuzzles' versionCode='${SGT_RELEASE_VERSION_CODE}' versionName='${SGT_RELEASE_VERSION_NAME}'"
+          if [[ "${badge}" != *"${expected}"* ]]; then
+            echo "::error::Release APK package or Android version does not match the tag"
+            exit 1
+          fi
+          ( cd dist && sha256sum "sgtpuzzles-${GITHUB_REF_NAME}.apk" > SHA256SUMS.txt )
+
+      - name: Upload signed APK as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sgtpuzzles-${{ github.ref_name }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/* \
+            --verify-tag \
+            --title "SGT Puzzles ${GITHUB_REF_NAME}" \
+            --generate-notes

@@ -137,6 +137,11 @@ signed release suitable for publishing to an app store. If a Play Store version
 of the app is already installed, it may need to be uninstalled first because
 its signing key is different.
 
+For signed GitHub Releases that support in-place updates, see
+[Release publishing](docs/RELEASING.md). Existing debug APKs and Play Store
+installations may use different signing certificates and cannot necessarily
+be overwritten by these releases.
+
 Architecture / where to find stuff
 ----------------------------------
 

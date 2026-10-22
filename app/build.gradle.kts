@@ -38,6 +38,11 @@ fun issuesURL(): String {
     return originURL.replaceFirst(Regex("\\.git/*$"), "") + "/issues"
 }
 
+// A tag-based GitHub Release overrides the defaults without changing local builds.
+// Example: v1.0.0 -> versionCode 1000000, versionName 1.0.0.
+val releaseVersionCode = providers.environmentVariable("SGT_RELEASE_VERSION_CODE").orNull
+val releaseVersionName = providers.environmentVariable("SGT_RELEASE_VERSION_NAME").orNull
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
@@ -51,8 +56,8 @@ android {
         applicationId = "name.boyle.chris.sgtpuzzles"
         minSdk = 21
         targetSdk = 36
-        versionCode = 149
-        versionName = timestamp(false)
+        versionCode = releaseVersionCode?.toInt() ?: 149
+        versionName = releaseVersionName ?: timestamp(false)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("string", "issues_url", issuesURL())
@@ -80,7 +85,9 @@ android {
             }
         }
         release {
-            versionNameSuffix = "-${timestamp(true)}-${idForSimon()}"
+            if (releaseVersionName == null) {
+                versionNameSuffix = "-${timestamp(true)}-${idForSimon()}"
+            }
             isMinifyEnabled = true
             ndk {
                 isDebuggable = false
