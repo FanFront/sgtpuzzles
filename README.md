@@ -118,6 +118,25 @@ project (except a lot of it is in C). Don't forget that you'll be signing with
 a dev key, so to test on a device that already has the Google Play version,
 uninstall that first.
 
+GitHub Actions builds
+---------------------
+
+The [Android CI workflow](.github/workflows/android.yml) builds a debug APK and
+runs JVM unit tests for each pull request and each push to `main`. You can also
+start a build from **Actions → Android CI → Run workflow** after this workflow is
+merged into the default branch.
+
+To download the APK, open a successful workflow run, scroll to **Artifacts**,
+and download `sgtpuzzles-debug-apk`. Unzip it to get the installable debug APK.
+GitHub keeps the artifact for 14 days.
+
+CI uses Java 17, Android SDK 36, CMake 3.22.1, and NDK 29.0.14206865.
+It builds with the project's Gradle wrapper, and requires no signing secrets.
+The APK uses an automatically generated **debug signing key**, so it is not a
+signed release suitable for publishing to an app store. If a Play Store version
+of the app is already installed, it may need to be uninstalled first because
+its signing key is different.
+
 Architecture / where to find stuff
 ----------------------------------
 
