@@ -4,16 +4,25 @@
     <color name="game_background">#ffcccccc</color>
     <!-- DO NOT CHANGE THIS IN NIGHT MODE, see issue #585 -->
     <color name="fake_game_background_to_derive_colours_from">#ffcccccc</color>
-    <color name="keyboard_background">#ff272d30</color>
-    <color name="key_background_border">#ff3c474c</color>
-    <color name="key_background_on">#ff5d6f76</color>
-    <color name="keyboard_foreground">#ffd4d5d6</color>
-    <color name="keyboard_foreground_disabled">#ff6c7072</color>
-    <color name="key_background_pressed">#ff515b5f</color>
+    <color name="keyboard_background">#fff0f4fa</color>
+    <color name="key_background_border">#ffffffff</color>
+    <color name="key_background_on">#ffbfdbfe</color>
+    <color name="keyboard_foreground">#ff17253b</color>
+    <color name="keyboard_foreground_disabled">#ff94a3b8</color>
+    <color name="key_background_pressed">#ffdbeafe</color>
     <color name="key_background_checked">#ff5d6f76</color>
     <color name="status_bar_text">#ff000000</color>
-    <color name="chooser_section_background">#ff272727</color>
-    <color name="chooser_current_background">#99114411</color>
-    <color name="action_bar_and_title_bar">#ff212121</color>
+    <color name="chooser_section_background">#fff0f4fa</color>
+    <color name="chooser_current_background">#ffdeecff</color>
+    <color name="action_bar_and_title_bar">#ffffffff</color>
     <color name="webview_background">#ffffffff</color>
+    <color name="modern_background">#fff5f7fc</color>
+    <color name="modern_surface">#ffffffff</color>
+    <color name="modern_card_stroke">#ffe3eaf4</color>
+    <color name="modern_icon_background">#ffebf3ff</color>
+    <color name="modern_selected_card">#ffdeecff</color>
+    <color name="modern_text_primary">#ff17253b</color>
+    <color name="modern_text_secondary">#ff64748b</color>
+    <color name="modern_accent">#ff3276e9</color>
+    <color name="modern_key_surface">#ffffffff</color>
 </resources>

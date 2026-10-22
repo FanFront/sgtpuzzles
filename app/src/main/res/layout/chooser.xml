@@ -5,6 +5,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:fitsSystemWindows="true"
+    android:background="@color/modern_background"
 	tools:context=".GameChooser">
 
 	<com.google.android.material.appbar.AppBarLayout
@@ -15,7 +16,8 @@
 		<com.google.android.material.appbar.MaterialToolbar
 			android:id="@+id/toolbar"
 			android:layout_width="match_parent"
-			android:layout_height="?attr/actionBarSize" />
+			android:layout_height="?attr/actionBarSize"
+            style="@style/ModernToolbar" />
 
 	</com.google.android.material.appbar.AppBarLayout>
 
@@ -28,21 +30,49 @@
 			android:id="@+id/table"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:paddingTop="2dip"
-			android:paddingBottom="2dip"
+			android:paddingTop="16dp"
+            android:paddingBottom="24dp"
 			android:stretchColumns="*"
 			android:shrinkColumns="*"
 			android:layout_gravity="center_horizontal"
 			android:animateLayoutChanges="true"
 			tools:ignore="UnusedAttribute">
-			<TextView android:id="@+id/games_starred"
+            <TextView android:id="@+id/welcome_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="8dp"
+                android:text="@string/modern_chooser_welcome"
+                android:textColor="@color/modern_text_primary"
+                android:textSize="27sp"
+                android:fontFamily="sans-serif-medium"
+                supportLib:layout_column="0"
+                supportLib:layout_row="0"/>
+            <TextView android:id="@+id/welcome_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="16dp"
+                android:text="@string/modern_chooser_subtitle"
+                android:textColor="@color/modern_text_secondary"
+                android:textSize="14sp"
+                supportLib:layout_column="0"
+                supportLib:layout_row="1"/>
+            <TextView android:id="@+id/games_starred"
 				android:text="@string/games_starred"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:background="@color/chooser_section_background"
-				android:paddingLeft="4dip"
-				android:paddingRight="4dip"
+				android:background="@android:color/transparent"
+                android:textColor="@color/modern_text_primary"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="17sp"
+                android:paddingTop="16dp"
+                android:paddingBottom="9dp"
+				android:paddingLeft="20dp"
+				android:paddingRight="20dp"
 				supportLib:layout_column="0"
 				supportLib:layout_row="0"/>
 			<TextView android:id="@+id/games_others"
@@ -50,9 +80,14 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:background="@color/chooser_section_background"
-				android:paddingLeft="4dip"
-				android:paddingRight="4dip"
+				android:background="@android:color/transparent"
+                android:textColor="@color/modern_text_primary"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="17sp"
+                android:paddingTop="16dp"
+                android:paddingBottom="9dp"
+				android:paddingLeft="20dp"
+				android:paddingRight="20dp"
 				supportLib:layout_column="0"
 				supportLib:layout_row="1"/>
 		</androidx.gridlayout.widget.GridLayout>

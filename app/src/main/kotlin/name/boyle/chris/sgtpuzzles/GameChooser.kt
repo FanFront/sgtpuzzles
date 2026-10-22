@@ -9,9 +9,6 @@ import android.content.res.Configuration
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.style.TextAppearanceSpan
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -133,15 +130,9 @@ class GameChooser : ActivityWithLoadButton(), OnSharedPreferenceChangeListener {
             with (ListItemBinding.inflate(layoutInflater)) {
                 itemBindings[backend] = this
                 icon.setImageDrawable(backend.icon(this@GameChooser))
-                text.text = SpannableStringBuilder(backend.displayName).apply {
-                    setSpan(
-                        TextAppearanceSpan(this@GameChooser, R.style.ChooserItemName),
-                        0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    append(": ")
-                    append(getString(backend.description))
-                }
-                text.visibility = if (useGrid) GONE else VISIBLE
+                text.text = backend.displayName
+                subtitle.text = getString(backend.description)
+                details.visibility = if (useGrid) GONE else VISIBLE
                 with (root) {
                     ignoreTouchAfterResume()
                     setOnClickListener {
@@ -194,7 +185,7 @@ class GameChooser : ActivityWithLoadButton(), OnSharedPreferenceChangeListener {
         val dm = resources.displayMetrics
         val insets = ViewCompat.getRootWindowInsets(binding.root)?.getInsets(systemBars() or displayCutout() or ime())
         val screenWidthPx = (dm.widthPixels - (insets?.left ?: 0) - (insets?.right ?: 0)).toDouble()
-        val colWidthDipNeeded = if (useGrid) 72 else 298
+        val colWidthDipNeeded = if (useGrid) 84 else 298
         val screenWidthDip = screenWidthPx / dm.density
         val newColumns = floor(screenWidthDip / colWidthDipNeeded).toInt().coerceAtLeast(1)
         val newColWidthPx = floor(screenWidthPx / newColumns).toInt()
@@ -205,6 +196,8 @@ class GameChooser : ActivityWithLoadButton(), OnSharedPreferenceChangeListener {
             val anyStarred = starred.isNotEmpty()
             binding.gamesStarred.visibility = if (anyStarred) VISIBLE else GONE
             var row = 0
+            setGridCells(binding.welcomeTitle, 0, row++, columns)
+            setGridCells(binding.welcomeSubtitle, 0, row++, columns)
             if (anyStarred) {
                 setGridCells(binding.gamesStarred, 0, row++, columns)
                 row = setViewsGridCells(row, starred.map {itemBindings[it]!!}, true)
@@ -238,6 +231,11 @@ class GameChooser : ActivityWithLoadButton(), OnSharedPreferenceChangeListener {
                 row++
             }
             setGridCells(it.root, col++, row, 1)
+            (it.root.layoutParams as GridLayout.LayoutParams).apply {
+                val margin = (6 * resources.displayMetrics.density).roundToInt()
+                width = (colWidthPx - 2 * margin).coerceAtLeast(1)
+                setMargins(margin, margin, margin, margin)
+            }
         }
         row++
         return row
@@ -298,7 +296,7 @@ class GameChooser : ActivityWithLoadButton(), OnSharedPreferenceChangeListener {
         if (useGrid == newGrid) return
         useGrid = newGrid
         rethinkActionBarCapacity()
-        itemBindings.values.forEach { it.text.visibility = if (useGrid) GONE else VISIBLE }
+        itemBindings.values.forEach { it.details.visibility = if (useGrid) GONE else VISIBLE }
         rethinkColumns(true)
     }
 

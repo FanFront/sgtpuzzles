@@ -71,6 +71,8 @@ Version %s"</string>
     <string name="victoryFlashSummary">Victory flash</string>
     <string name="Change_type">Change type</string>
     <!-- Chooser -->
+    <string name="modern_chooser_welcome">Find your next puzzle</string>
+    <string name="modern_chooser_subtitle">A little challenge, a lot of fun. Pick a game to begin.</string>
     <string name="games_starred">Starred (long press to toggle)</string>
     <string name="games_others">Others</string>
     <string name="games_others_none_starred">Long press to star a game</string>
