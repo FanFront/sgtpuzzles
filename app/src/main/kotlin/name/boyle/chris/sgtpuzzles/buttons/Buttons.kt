@@ -812,14 +812,35 @@ private fun KeyButton(
     }
 }
 
+/**
+ * Most keyboard artwork is a white, monochrome PNG designed for the original
+ * dark keyboard. On a light Material button it becomes effectively invisible.
+ *
+ * Colourful Undead monster illustrations are the exception: their colours
+ * convey game identity and must not be flattened to one foreground colour.
+ * Disabled buttons always use the dimmed Material content colour.
+ */
+internal fun shouldTintKeyIcon(@DrawableRes icon: Int, enabled: Boolean): Boolean =
+    !enabled || when (icon) {
+        R.drawable.undead_sym_key_g,
+        R.drawable.undead_sym_key_v,
+        R.drawable.undead_sym_key_z -> false
+        else -> true
+    }
+
 @Composable
 private fun ResIcon(@DrawableRes icon: Int, enabled: State<Boolean>) {
     Icon(
         painter = painterResource(id = icon),
         contentDescription = null,  // described on parent button
         modifier = Modifier.size(32.dp),
-        // our icons are the right colour; only tint if disabled
-        tint = if (enabled.value) Color.Unspecified else LocalContentColor.current,
+        // Button's LocalContentColor already adapts to the light/dark surface,
+        // selection state and disabled foreground colour.
+        tint = if (shouldTintKeyIcon(icon, enabled.value)) {
+            LocalContentColor.current
+        } else {
+            Color.Unspecified
+        },
     )
 }
 
