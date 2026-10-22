@@ -29,7 +29,7 @@ Then add the following **repository Actions secrets** at
 | `ANDROID_RELEASE_KEY_PASSWORD` | Private key password |
 
 On Linux, use `base64 -w 0 sgtpuzzles-release.jks` to encode the file;
-on macOS, use `base64 -i sgtpuzzles-release.jks | tr -d '\\n'`.
+on macOS, use `base64 -i sgtpuzzles-release.jks | tr -d '\n'`.
 Save the resulting one-line value directly into the secret, **not** in the
 source tree or a public issue. If you lose this key, you cannot sign an update
 for existing installations signed by it.
