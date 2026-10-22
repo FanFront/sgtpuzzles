@@ -169,14 +169,17 @@ internal object ModernBoardPalette {
         "UNMARKED", "NEUTRAL", "GRASS" -> p.paleFill
         "0" -> if (game == "unruly") p.filled else null
         "1" -> if (game == "unruly") p.surface else null
-        "0_HIGHLIGHT", "1_HIGHLIGHT" -> p.highlight
+        "0_HIGHLIGHT", "1_HIGHLIGHT" -> p.accentSoft
         "0_LOWLIGHT", "1_LOWLIGHT" -> p.lowlight
         "TREELEAF" -> p.success
         "TENT", "FLAG", "POSITIVE" -> p.error
         "NEGATIVE" -> p.ink
         "LIT" -> if (p == dark) rgb(0x886C25) else rgb(0xFFF0B0)
 
-        "GRID", "SEPARATOR", "EDGE", "FAINT", "LINE_MAYBE", "DIAG",
+        // Range uses GRID as BLACK/TEXT/USER; Palisade aliases GRID to
+        // CLUE and LINE_YES. Both must remain higher-contrast than grid hints.
+        "GRID" -> if (game == "range" || game == "palisade") p.boldGrid else p.grid
+        "SEPARATOR", "EDGE", "FAINT", "LINE_MAYBE", "DIAG",
         "XDIAGONALS", "SLEEPER", "LOCK", "COVER" -> p.grid
         "GRID_BLOCK", "BLOCK_BORDER", "OUTLINE", "BORDER", "FRAME",
         "TRACK_CLUE", "CLUE", "KILLER" -> p.boldGrid
