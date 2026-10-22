@@ -963,7 +963,7 @@ static void draw_tile(drawing *dr, game_drawstate *ds, const game_state *state,
     } else {
 	draw_rect(dr, x + HIGHLIGHT_WIDTH, y + HIGHLIGHT_WIDTH,
 		  TILE_SIZE - 2*HIGHLIGHT_WIDTH, TILE_SIZE - 2*HIGHLIGHT_WIDTH,
-		  flash_colour);
+		  flash_colour == COL_BACKGROUND ? COL_TILE : flash_colour);
     }
 
     /*
