@@ -15,23 +15,26 @@ fun timestamp(time: Boolean): String {
     return dateFormat.format(Date())
 }
 
-fun gitCommand(vararg args: String): String {
-    return providers.exec {
+// Missing Git refs are expected in shallow CI checkouts. Gradle still records
+// failed providers.exec calls when storing the configuration cache, even when
+// the resulting exception is caught. Handle non-zero exit codes explicitly.
+fun gitCommand(vararg args: String): String? {
+    val output = providers.exec {
         commandLine("git", *args)
-    }.standardOutput.asText.get().trim()
+        isIgnoreExitValue = true
+    }
+    if (output.result.get().exitValue != 0) return null
+    return output.standardOutput.asText.get().trim().takeIf { it.isNotEmpty() }
 }
 
 fun idForSimon(): String {
-    return try {
-        val mergeBase = gitCommand("merge-base", "simon/main", "main")
-        gitCommand("rev-parse", "--short", mergeBase)
-    } catch (_: Exception) {
-        "UNOFFICIAL"
-    }
+    val mergeBase = gitCommand("merge-base", "simon/main", "main") ?: return "UNOFFICIAL"
+    return gitCommand("rev-parse", "--short", mergeBase) ?: "UNOFFICIAL"
 }
 
 fun issuesURL(): String {
     val originURL = gitCommand("ls-remote", "--get-url", "origin")
+        ?: "https://github.com/FanFront/sgtpuzzles"
     return originURL.replaceFirst(Regex("\\.git/*$"), "") + "/issues"
 }
 
