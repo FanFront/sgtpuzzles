@@ -1,90 +1,72 @@
-# Publishing signed GitHub Releases
+# GitHub Releases — no local development environment needed
 
-The [Publish Android release](../.github/workflows/release.yml) action publishes
-an APK to GitHub Releases when a semantic version tag is pushed (for example,
-`v1.0.0`). Only tags pointing to commits in `main` are accepted. The workflow
-builds a release APK, runs JVM unit tests, signs the APK, verifies its signature
-and package/version, and publishes the APK with SHA-256 checksums.
+Everything can be prepared and published in the **GitHub website**. Android
+Studio, Java, Gradle, Git, and a local computer are not required.
 
-## Set up signing once
+The release APK keeps application ID `name.boyle.chris.sgtpuzzles`.
+It uses a persistent signing key created once by GitHub Actions. Subsequent
+releases reuse that exact signing key so Android can upgrade one of **our
+GitHub Release APKs** over an earlier version without uninstalling it.
 
-You **must use the same signing key for every subsequent release**. Back up your
-keystore securely outside GitHub; never commit it, or its passwords, to this
-repository. You can use an existing keystore if you already have APKs installed
-that you want to update. To generate a **new** one on your own computer:
+## One-time setup in GitHub
 
-```sh
-keytool -genkeypair -v -keystore sgtpuzzles-release.jks -alias sgtpuzzles \
-  -keyalg RSA -keysize 3072 -validity 10000
-```
+1. Open **Settings → Secrets and variables → Actions → New repository secret**.
+   Create a secret named `ANDROID_RELEASE_SIGNING_PASSPHRASE`. Its value must
+   be a **unique, randomly generated 24+ character password** (ideally 32+
+   characters from a password manager). Keep a secure copy of that password.
+   This secret encrypts the long-lived signing key and protects the key itself.
+2. Merge [PR #2](https://github.com/FanFront/sgtpuzzles/pull/2) into `main`.
+3. Go to **Actions → Initialize release signing key → Run workflow**.
+   Select `main` and start it. It securely generates a PKCS12 Android signing
+   keystore, encrypts it with AES-256 and PBKDF2, and saves **only the encrypted
+   file** in a permanent branch named `android-release-signing`. The plaintext
+   signing key and password are never committed or uploaded as artifacts.
+   This setup refuses to overwrite an existing signing key.
 
-Then add the following **repository Actions secrets** at
-**Settings → Secrets and variables → Actions**:
+If GitHub reports insufficient write permission when initializing, review
+**Settings → Actions → General → Workflow permissions**. The workflow requests
+`contents: write`, which the repository's policies must permit.
 
-| Secret | Value |
-| --- | --- |
-| `ANDROID_RELEASE_KEYSTORE_BASE64` | Single-line Base64 encoding of the .jks file |
-| `ANDROID_RELEASE_STORE_PASSWORD` | Keystore password |
-| `ANDROID_RELEASE_KEY_ALIAS` | Signing key alias (e.g. `sgtpuzzles`) |
-| `ANDROID_RELEASE_KEY_PASSWORD` | Private key password |
+**Important:** Keep the `android-release-signing` branch and the secret;
+both are needed to sign future updates. Never delete the branch, rotate
+the password without re-encrypting the key, or publish the plaintext key.
+You can also back up `release-key.p12.enc` using GitHub's web interface;
+it is encrypted but still needs the original passphrase to unlock.
 
-On Linux, use `base64 -w 0 sgtpuzzles-release.jks` to encode the file;
-on macOS, use `base64 -i sgtpuzzles-release.jks | tr -d '\n'`.
-Save the resulting one-line value directly into the secret, **not** in the
-source tree or a public issue. If you lose this key, you cannot sign an update
-for existing installations signed by it.
+## Publish directly from the Actions tab
 
-## Publish a release
+1. Open **Actions → Publish Android release → Run workflow**.
+2. Choose the `main` branch, enter a version such as `v1.0.0`, and click
+   **Run workflow**.
+3. Wait for the build, tests, signing verification and publish steps to pass.
+4. Download `sgtpuzzles-v1.0.0.apk` from
+   [GitHub Releases](https://github.com/FanFront/sgtpuzzles/releases).
 
-After the workflow is merged into `main` and the signing secrets exist,
-choose a fresh version tag, create it on the latest `main` commit, and push:
+To upgrade an earlier GitHub Release APK, publish `v1.0.1` using the same
+steps and install its APK normally. Android can retain existing application data
+because the signing certificate and package ID stay the same.
 
-```sh
-git checkout main
-git pull --ff-only
-git tag v1.0.0
-git push origin v1.0.0
-```
+The workflow also supports publishing when someone pushes a `v*` tag, but
+the Actions **Run workflow** button means you never need a terminal or Git.
 
-The version name is `1.0.0` and version code is `1000000` for `v1.0.0`.
-In general, `versionCode = major * 1000000 + minor * 1000 + patch`;
-minor/patch are 0–999, and the code must exceed 149 and not exceed 2100000000.
-Use a **greater** version than the last installed release. The workflow will
-reject invalid tags and tags not reachable from `main`.
+Versions must be `vMAJOR.MINOR.PATCH`. The build computes
+`versionCode = major * 1000000 + minor * 1000 + patch`; minor/patch are
+0–999, the version code must exceed 149, and Android's maximum is 2100000000.
+Versions must increase for future upgrades.
 
-Find the signed `sgtpuzzles-v1.0.0.apk` at
-[GitHub Releases](https://github.com/FanFront/sgtpuzzles/releases). You can also
-download it from the Actions run's `sgtpuzzles-v1.0.0` artifact.
+## Important Android limitations
 
-## Upgrade / overwrite an installed app (覆盖安装)
+Android permits an in-place update only if the package ID matches, the
+signing certificate matches (or there is a valid signing-key rotation), and
+the new version code is compatible.
 
-Android permits an in-place APK update *without uninstalling and losing app
-data* only when all of the following hold:
+A newly generated key **cannot overwrite** the upstream Google Play app
+or another app signed with a different private key. An old Android Studio or
+GitHub Actions debug APK usually uses a different key too. There is no safe
+way for GitHub Actions to bypass Android's signature checks.
 
-1. The application ID matches: `name.boyle.chris.sgtpuzzles` (unchanged).
-2. The signing certificate matches the installed app's certificate (or a
-   valid signing-key rotation is used).
-3. The new version code is **at least** the installed version's code.
-
-For example, the same key can sign `v1.0.0`, then `v1.0.1`, and Android
-allows the latter to update the former. With adb:
-
-```sh
-adb install -r sgtpuzzles-v1.0.1.apk
-```
-
-**Important:** A newly created release key cannot replace an APK signed with
-the upstream Google Play app-signing key, nor an APK signed by an unrelated
-Android Studio/GitHub Actions debug key. Android rejects that update with
-`INSTALL_FAILED_UPDATE_INCOMPATIBLE`. The **Google Play upload key** is often
-different from the key used to sign APKs delivered by Google Play.
-
-If you don't control the installed app's signing key, your options are to
-uninstall it first (back up exported game data beforehand) or to distribute
-a separately identified app with a different application ID. The workflow
-does not attempt to bypass Android signature checks.
-
-The ordinary Android CI debug APKs are signed with runner-generated debug
-keys; those keys can also differ between workflow runs. For reliable
-in-place upgrades, install the **signed GitHub Release APKs** and keep
-using the same release keystore for future tags.
+For those existing installs, either obtain the original app signing key
+(and reuse it, which this automated new-key setup does not support) or
+uninstall the old app first, ideally after exporting your game data.
+After installing your first signed GitHub Release, subsequent releases
+from this setup can normally be installed on top of it.
