@@ -15,25 +15,33 @@ fun timestamp(time: Boolean): String {
     return dateFormat.format(Date())
 }
 
-fun gitCommand(vararg args: String): String {
-    return providers.exec {
+// Missing Git refs are expected in shallow CI checkouts. Gradle still records
+// failed providers.exec calls when storing the configuration cache, even when
+// the resulting exception is caught. Handle non-zero exit codes explicitly.
+fun gitCommand(vararg args: String): String? {
+    val output = providers.exec {
         commandLine("git", *args)
-    }.standardOutput.asText.get().trim()
+        isIgnoreExitValue = true
+    }
+    if (output.result.get().exitValue != 0) return null
+    return output.standardOutput.asText.get().trim().takeIf { it.isNotEmpty() }
 }
 
 fun idForSimon(): String {
-    return try {
-        val mergeBase = gitCommand("merge-base", "simon/main", "main")
-        gitCommand("rev-parse", "--short", mergeBase)
-    } catch (_: Exception) {
-        "UNOFFICIAL"
-    }
+    val mergeBase = gitCommand("merge-base", "simon/main", "main") ?: return "UNOFFICIAL"
+    return gitCommand("rev-parse", "--short", mergeBase) ?: "UNOFFICIAL"
 }
 
 fun issuesURL(): String {
     val originURL = gitCommand("ls-remote", "--get-url", "origin")
+        ?: "https://github.com/FanFront/sgtpuzzles"
     return originURL.replaceFirst(Regex("\\.git/*$"), "") + "/issues"
 }
+
+// A tag-based GitHub Release overrides the defaults without changing local builds.
+// Example: v1.0.0 -> versionCode 1000000, versionName 1.0.0.
+val releaseVersionCode = providers.environmentVariable("SGT_RELEASE_VERSION_CODE").orNull
+val releaseVersionName = providers.environmentVariable("SGT_RELEASE_VERSION_NAME").orNull
 
 java {
     toolchain {
@@ -48,8 +56,8 @@ android {
         applicationId = "name.boyle.chris.sgtpuzzles"
         minSdk = 21
         targetSdk = 36
-        versionCode = 149
-        versionName = timestamp(false)
+        versionCode = releaseVersionCode?.toInt() ?: 149
+        versionName = releaseVersionName ?: timestamp(false)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("string", "issues_url", issuesURL())
@@ -77,7 +85,9 @@ android {
             }
         }
         release {
-            versionNameSuffix = "-${timestamp(true)}-${idForSimon()}"
+            if (releaseVersionName == null) {
+                versionNameSuffix = "-${timestamp(true)}-${idForSimon()}"
+            }
             isMinifyEnabled = true
             ndk {
                 isDebuggable = false
