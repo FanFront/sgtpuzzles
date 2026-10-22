@@ -82,9 +82,13 @@ class GameView(context: Context, attrs: AttributeSet?) : View(context, attrs), V
     private val paint = Paint().apply {
         isAntiAlias = true
         strokeCap = Paint.Cap.SQUARE
+        strokeJoin = Paint.Join.ROUND
+        isSubpixelText = true
         strokeWidth = 1f // will be scaled with everything else as long as it's non-zero
     }
     private val checkerboardPaint = Paint()
+    private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+    private val modernNumberTypeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
     private val blitters: Array<Bitmap?> = arrayOfNulls(512)
 
     @ColorInt
@@ -685,7 +689,7 @@ class GameView(context: Context, attrs: AttributeSet?) : View(context, attrs), V
             if (f[0] > 0 || f[1] < w || f[2] < 0 || f[3] > h) {
                 c.drawPaint(checkerboardPaint)
             }
-            c.drawBitmap(bitmap, 0f, 0f, null)
+            c.drawBitmap(bitmap, 0f, 0f, bitmapPaint)
         }
         var keepAnimating = false
         for (i in 0..3) {
@@ -790,19 +794,7 @@ class GameView(context: Context, attrs: AttributeSet?) : View(context, attrs), V
                 (newColours[i * 3 + 1] * 255).toInt(),
                 (newColours[i * 3 + 2] * 255).toInt()
             )
-            // Every backend inherits the same light neutral canvas when it requests
-            // the portable collection's default #CCCCCC background. Keep all
-            // non-background colours untouched: clues and tile colours encode
-            // puzzle state and cannot be safely restyled generically.
-            val defaultGrey = i == 0 &&
-                Color.red(colour) in 202..206 &&
-                Color.green(colour) in 202..206 &&
-                Color.blue(colour) in 202..206
-            colours[i] = if (!night && defaultGrey) {
-                ContextCompat.getColor(context, R.color.modern_game_canvas)
-            } else {
-                colour
-            }
+            colours[i] = colour
         }
         if (night) {
             // Only replace colours[0] at night: Untangle uses a darker grey to distinguish the play area
@@ -818,6 +810,9 @@ class GameView(context: Context, attrs: AttributeSet?) : View(context, attrs), V
                 }  // else GenerateBackendsTask is broken, but don't crash
             }
         }
+        // Apply per-puzzle colours to actual native-drawn board elements,
+        // after the existing Android night overrides.
+        colours = ModernBoardPalette.apply(whichBackend.sourceName, colours, night)
         if (colours.isNotEmpty()) {
             setBackgroundColor(colours[0])
         } else {
@@ -890,9 +885,14 @@ class GameView(context: Context, attrs: AttributeSet?) : View(context, attrs), V
         colour: Int
     ) {
         paint.color = colours[colour]
+        paint.style = Paint.Style.STROKE
         paint.strokeWidth = thickness.coerceAtLeast(1f)
+        // Smooth puzzle paths while retaining precise thin grid lines.
+        paint.strokeCap = if (thickness >= 1.75f) Paint.Cap.ROUND else Paint.Cap.SQUARE
         canvas.drawLine(x1, y1, x2, y2, paint)
+        paint.strokeCap = Paint.Cap.SQUARE
         paint.strokeWidth = 1f
+        paint.style = Paint.Style.FILL
     }
 
     @UsedByJNI
@@ -977,7 +977,7 @@ class GameView(context: Context, attrs: AttributeSet?) : View(context, attrs), V
         paint.color = colours[colour]
         paint.style = Paint.Style.FILL
         paint.typeface =
-            if (flags and TEXT_MONO != 0) Typeface.MONOSPACE else Typeface.DEFAULT
+            if (flags and TEXT_MONO != 0) Typeface.MONOSPACE else modernNumberTypeface
         paint.textSize = size.toFloat()
         val fm = paint.fontMetrics
         val asc = abs(fm.ascent)
