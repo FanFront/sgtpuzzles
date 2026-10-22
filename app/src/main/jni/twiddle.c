@@ -37,6 +37,7 @@ enum {
     COL_LOWLIGHT,
     COL_LOWLIGHT_GENTLE,
     COL_HIGHCURSOR, COL_LOWCURSOR,
+    COL_TILE,
     NCOLOURS
 };
 
@@ -820,6 +821,7 @@ static float *game_colours(frontend *fe, int *ncolours)
         ret[COL_HIGHLIGHT_GENTLE * 3 + i] = ret[COL_BACKGROUND * 3 + i] * 1.1F;
         ret[COL_LOWLIGHT_GENTLE * 3 + i] = ret[COL_BACKGROUND * 3 + i] * 0.9F;
         ret[COL_TEXT * 3 + i] = 0.0;
+        ret[COL_TILE * 3 + i] = 1.0F;
         ret[COL_LOWCURSOR * 3 + i] = ret[COL_HIGHCURSOR * 3 + i] * 0.6F;
     }
 
@@ -955,7 +957,9 @@ static void draw_tile(drawing *dr, game_drawstate *ds, const game_state *state,
 	coords[6] = x + TILE_SIZE - 1 - HIGHLIGHT_WIDTH;
 	coords[7] = y + HIGHLIGHT_WIDTH;
 	rotate(coords+6, rot);
-	draw_polygon(dr, coords, 4, flash_colour, flash_colour);
+	draw_polygon(dr, coords, 4,
+                     flash_colour == COL_BACKGROUND ? COL_TILE : flash_colour,
+                     flash_colour == COL_BACKGROUND ? COL_TILE : flash_colour);
     } else {
 	draw_rect(dr, x + HIGHLIGHT_WIDTH, y + HIGHLIGHT_WIDTH,
 		  TILE_SIZE - 2*HIGHLIGHT_WIDTH, TILE_SIZE - 2*HIGHLIGHT_WIDTH,

@@ -40,6 +40,7 @@ enum {
     COL_TEXT,
     COL_HIGHLIGHT,
     COL_LOWLIGHT,
+    COL_TILE,
     NCOLOURS
 };
 
@@ -907,8 +908,10 @@ static float *game_colours(frontend *fe, int *ncolours)
 
     game_mkhighlight(fe, ret, COL_BACKGROUND, COL_HIGHLIGHT, COL_LOWLIGHT);
 
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < 3; i++) {
         ret[COL_TEXT * 3 + i] = 0.0;
+        ret[COL_TILE * 3 + i] = 1.0F;
+    }
 
     *ncolours = NCOLOURS;
     return ret;
@@ -961,7 +964,7 @@ static void draw_tile(drawing *dr, game_drawstate *ds, const game_state *state,
 
         draw_rect(dr, x + HIGHLIGHT_WIDTH, y + HIGHLIGHT_WIDTH,
                   TILE_SIZE - 2*HIGHLIGHT_WIDTH, TILE_SIZE - 2*HIGHLIGHT_WIDTH,
-                  flash_colour);
+                  flash_colour == COL_BACKGROUND ? COL_TILE : flash_colour);
 
         sprintf(str, "%d", tile);
         draw_text(dr, x + TILE_SIZE/2, y + TILE_SIZE/2,

@@ -65,6 +65,14 @@ class ModernBoardPaletteTest {
     }
 
     @Test
+    fun slidingPuzzleTileSurfacesDifferFromBoardBackground() {
+        for ((game, tileIndex) in listOf("fifteen" to 4, "sixteen" to 4, "twiddle" to 8)) {
+            val colours = ModernBoardPalette.apply(game, IntArray(20) { 0xffaaaaaa.toInt() }, false)
+            assertNotEquals("$game tile should stand out from the board", colours[0], colours[tileIndex])
+        }
+    }
+
+    @Test
     fun binaryPuzzleCellsStillHaveTwoDistinctStates() {
         val input = IntArray(15) { 0xffaaaaaa.toInt() }
         val result = ModernBoardPalette.apply("unruly", input, false)
