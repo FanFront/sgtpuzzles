@@ -60,7 +60,7 @@
             android:layout_marginBottom="8dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:background="@color/game_background">
+            android:background="@color/modern_game_canvas">
             <requestFocus/>
         </name.boyle.chris.sgtpuzzles.GameView>
 

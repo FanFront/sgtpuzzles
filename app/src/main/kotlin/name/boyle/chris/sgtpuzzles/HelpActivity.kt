@@ -103,6 +103,7 @@ class HelpActivity : ActivityWithNightMode() {
 
             override fun onPageFinished(view: WebView, url: String) {
                 view.requestApplyInsets()
+                applyModernHelpStyles()
                 applyNightCSSClass()
             }
 
@@ -133,6 +134,45 @@ class HelpActivity : ActivityWithNightMode() {
             false
         }
         webView.loadUrl(ASSETS_URL + helpPath(if (haveLocalised) lang else "en", topic))
+    }
+
+    /** All local help pages, including Chinese translations, share one modern
+     * presentation without having to alter the generated Halibut HTML files. */
+    private fun applyModernHelpStyles() {
+        webView.evaluateJavascript(
+            """
+            (function() {
+              if (document.getElementById('modern-help-style')) return;
+              var style = document.createElement('style');
+              style.id = 'modern-help-style';
+              style.textContent = `
+                html { background: #f5f7fc; }
+                body {
+                  box-sizing: border-box; max-width: 850px;
+                  margin: 0 auto; padding: 24px 22px 40px;
+                  background: #ffffff; color: #17253b;
+                  font: 16px/1.75 system-ui, -apple-system, sans-serif;
+                  overflow-wrap: break-word;
+                }
+                h1, h2, h3 { line-height: 1.3; letter-spacing: -0.02em; }
+                h1 { font-size: 1.65em; } h2 { font-size: 1.3em; }
+                h3 { font-size: 1.1em; }
+                a:link { color: #236ae0; }
+                a:visited { color: #7954c5; }
+                p, li { line-height: 1.75; }
+                img { max-width: 100%; height: auto; }
+                pre { overflow-x: auto; padding: 12px; border-radius: 12px; background: #edf3fa; }
+                body.night { background: #1a2738; color: #edf3fc; }
+                body.night a:link { color: #8db8ff; }
+                body.night a:visited { color: #bea6ff; }
+                body.night pre { background: #24354c; }
+                html:has(body.night) { background: #111a29; }
+              `;
+              document.head.appendChild(style);
+            })();
+            """.trimIndent(),
+            null
+        )
     }
 
     private fun applyNightCSSClass() {

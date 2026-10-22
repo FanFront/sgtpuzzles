@@ -19,6 +19,7 @@
     <color name="modern_toolbar">#ff203047</color>
     <color name="modern_toolbar_text">#fff7fbff</color>
     <color name="modern_background">#fff5f7fc</color>
+    <color name="modern_game_canvas">#fff0f4fa</color>
     <color name="modern_surface">#ffffffff</color>
     <color name="modern_card_stroke">#ffe3eaf4</color>
     <color name="modern_icon_background">#ffebf3ff</color>

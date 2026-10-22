@@ -185,7 +185,7 @@ class GameChooser : ActivityWithLoadButton(), OnSharedPreferenceChangeListener {
         val dm = resources.displayMetrics
         val insets = ViewCompat.getRootWindowInsets(binding.root)?.getInsets(systemBars() or displayCutout() or ime())
         val screenWidthPx = (dm.widthPixels - (insets?.left ?: 0) - (insets?.right ?: 0)).toDouble()
-        val colWidthDipNeeded = if (useGrid) 84 else 298
+        val colWidthDipNeeded = if (useGrid) 90 else 298
         val screenWidthDip = screenWidthPx / dm.density
         val newColumns = floor(screenWidthDip / colWidthDipNeeded).toInt().coerceAtLeast(1)
         val newColWidthPx = floor(screenWidthPx / newColumns).toInt()
