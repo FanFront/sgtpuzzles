@@ -70,7 +70,7 @@ internal object ModernBoardPalette {
 
     // Opaque colours only. Alpha should always remain 255 for native blitter
     // compositing, state snapshots and zooming.
-    private fun rgb(hex: Long) = (0xff000000L or hex).toInt()
+    private fun rgb(hex: Int) = 0xff000000.toInt() or hex
 
     private data class Theme(
         val canvas: Int,
@@ -167,6 +167,14 @@ internal object ModernBoardPalette {
         "EMPTY", "RIGHT", "BLANK", "WHITE", "LIGHT" -> p.surface
         "MARKED", "FULL", "BLACK", "DOMINO", "WALL", "FILLEDSQUARE" -> p.filled
         "UNMARKED", "NEUTRAL", "GRASS" -> p.paleFill
+        "0" -> if (game == "unruly") p.filled else null
+        "1" -> if (game == "unruly") p.surface else null
+        "0_HIGHLIGHT", "1_HIGHLIGHT" -> p.highlight
+        "0_LOWLIGHT", "1_LOWLIGHT" -> p.lowlight
+        "TREELEAF" -> p.success
+        "TENT", "FLAG", "POSITIVE" -> p.error
+        "NEGATIVE" -> p.ink
+        "LIT" -> if (p == dark) rgb(0x886C25) else rgb(0xFFF0B0)
 
         "GRID", "SEPARATOR", "EDGE", "FAINT", "LINE_MAYBE", "DIAG",
         "XDIAGONALS", "SLEEPER", "LOCK", "COVER" -> p.grid
@@ -188,9 +196,9 @@ internal object ModernBoardPalette {
         "FLASHING", "FLASHTEXT", "POINT", "NEIGHBOUR" -> p.cyan
         "LINEUNKNOWN", "HINT", "MARK" -> p.warning
         "USER", "GUESS", "SLANT1", "TRACK", "BLUE" -> p.accent
-        "SLANT2", "POWERED", "PLAYER", "LIT", "CORRECT", "SATISFIED",
+        "SLANT2", "POWERED", "PLAYER", "CORRECT", "SATISFIED",
         "GROUNDED", "DRAGON", "DRAGOFF" ->
-            if (name in setOf("CORRECT", "LIT")) p.successSoft else p.success
+            if (name == "CORRECT") p.successSoft else p.success
         "ERROR", "WARNING", "MISTAKE", "DOMINOCLASH", "ERR",
         "CROSSEDLINE", "DEAD_PLAYER", "WRONGNUMBER" -> p.error
         "ERROR_BACKGROUND" -> p.errorSoft
