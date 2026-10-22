@@ -1185,10 +1185,10 @@ class GamePlay : ActivityWithLoadButton(), OnSharedPreferenceChangeListener, Gam
         if (isNight != _wasNight) {
             _wasNight = isNight
             statusBar.setTextColor(
-                ResourcesCompat.getColor(resources, R.color.status_bar_text, theme)
+                ResourcesCompat.getColor(resources, R.color.modern_text_primary, theme)
             )
             statusBar.setBackgroundColor(
-                ResourcesCompat.getColor(resources, R.color.game_background, theme)
+                ResourcesCompat.getColor(resources, R.color.modern_surface, theme)
             )
         }
         rethinkActionBarCapacity()

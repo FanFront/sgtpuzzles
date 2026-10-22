@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,7 +50,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
@@ -715,7 +716,7 @@ private fun TextKeyButton(
         enabled = enabled,
         borders = borders
     ) {
-        Text(label, fontSize = 24.sp, fontWeight = FontWeight.Normal)
+        Text(label, fontSize = 22.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -769,7 +770,7 @@ private fun KeyButton(
     val background =
         if (on.value) R.color.key_background_on
         else if (borders.value) R.color.key_background_border
-        else R.color.keyboard_background
+        else R.color.modern_key_surface
     val buttonColors = ButtonDefaults.buttonColors(
         colorResource(background),
         colorResource(R.color.keyboard_foreground),
@@ -785,12 +786,13 @@ private fun KeyButton(
             },
             enabled = enabled.value,
             colors = buttonColors,
-            shape = RectangleShape,
+            shape = RoundedCornerShape(12.dp),
             contentPadding = PaddingValues(0.dp, 0.dp),
             modifier = modifier
                 .absoluteOffset { offset }
                 .width(dimensionResource(id = R.dimen.keySize))
                 .height(dimensionResource(id = R.dimen.keySize))
+                .padding(2.dp)
                 .semantics {
                     role = Role.Button
                     this.contentDescription = contentDescription

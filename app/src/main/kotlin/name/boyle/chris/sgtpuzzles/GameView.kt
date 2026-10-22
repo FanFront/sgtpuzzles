@@ -790,7 +790,19 @@ class GameView(context: Context, attrs: AttributeSet?) : View(context, attrs), V
                 (newColours[i * 3 + 1] * 255).toInt(),
                 (newColours[i * 3 + 2] * 255).toInt()
             )
-            colours[i] = colour
+            // Every backend inherits the same light neutral canvas when it requests
+            // the portable collection's default #CCCCCC background. Keep all
+            // non-background colours untouched: clues and tile colours encode
+            // puzzle state and cannot be safely restyled generically.
+            val defaultGrey = i == 0 &&
+                Color.red(colour) in 202..206 &&
+                Color.green(colour) in 202..206 &&
+                Color.blue(colour) in 202..206
+            colours[i] = if (!night && defaultGrey) {
+                ContextCompat.getColor(context, R.color.modern_game_canvas)
+            } else {
+                colour
+            }
         }
         if (night) {
             // Only replace colours[0] at night: Untangle uses a darker grey to distinguish the play area

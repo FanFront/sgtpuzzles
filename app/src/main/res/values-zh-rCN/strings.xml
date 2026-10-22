@@ -130,4 +130,6 @@
     <string name="undoRedoOnKeyboardSummary">显示“撤销/恢复”按键</string>
     <string name="victoryFlash">完成游戏时的动画</string>
     <string name="victoryFlashSummary">胜利闪烁效果</string>
+    <string name="modern_chooser_welcome">开启下一场解谜之旅</string>
+    <string name="modern_chooser_subtitle">放松心情，挑战思维。选择一款游戏开始吧。</string>
 </resources>

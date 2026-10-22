@@ -1,54 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- based on android.R.layout.activity_list_item -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:paddingTop="2dip"
-	android:paddingBottom="2dip"
-	android:paddingLeft="2dip"
-	android:paddingRight="2dip"
-	style="@style/GameChooserItem">
-<LinearLayout
-	android:id="@+id/currentGameHighlight"
-	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:paddingTop="2dip"
-	android:paddingBottom="2dip"
-	android:paddingLeft="2dip"
-	android:paddingRight="2dip"
-	android:background="@color/chooser_item_background"
-	tools:ignore="UseCompoundDrawables,UselessParent">
-	<!-- compound drawables can't top-align; this layout's use is to have a background if current -->
-	<FrameLayout
-		android:layout_width="64dip"
-		android:layout_height="64dip">
-		<androidx.appcompat.widget.AppCompatImageView android:id="@+id/icon"
-			android:layout_width="64dip"
-			android:layout_height="64dip"
-			tools:src="@drawable/net"
-			android:contentDescription=""
-			android:tint="@color/chooser_item_background"
-			tools:ignore="ContentDescription"/><!-- TextView is description -->
-		<ImageView
-			android:id="@+id/star"
-			android:layout_width="22dip"
-			android:layout_height="22dip"
-			android:layout_gravity="bottom|end"
-			android:contentDescription=""
-			android:src="@drawable/ic_star"
-			tools:ignore="ContentDescription" /><!-- presence in Starred/Other sections conveys the same info -->
-	</FrameLayout>
-
-	<TextView
-		android:id="@+id/text"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center_horizontal"
-		android:layout_weight="1"
-		android:bufferType="spannable"
-		android:paddingLeft="8dip"
-		android:paddingRight="8dip"
-		tools:text="Net: Rotate tiles to connect all tiles (not just endpoints) to the centre tile." />
-</LinearLayout>
-</FrameLayout>
+<!-- All puzzle games use this common, responsive tile; keep the game identity intact. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/chooser_item_background"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="1dp"
+    app:strokeColor="@color/modern_card_stroke"
+    app:strokeWidth="1dp">
+    <LinearLayout
+        android:id="@+id/currentGameHighlight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="80dp"
+        android:orientation="horizontal"
+        android:padding="9dp">
+        <FrameLayout
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/modern_icon_container">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                tools:src="@drawable/net" />
+            <ImageView
+                android:id="@+id/star"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="bottom|end"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_star"
+                tools:ignore="ContentDescription"/>
+        </FrameLayout>
+        <LinearLayout
+            android:id="@+id/details"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="7dp">
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/modern_text_primary"
+                android:textSize="16sp"
+                tools:text="Net"/>
+            <TextView
+                android:id="@+id/subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="@color/modern_text_secondary"
+                android:textSize="12sp"
+                tools:text="Rotate tiles to connect the network."/>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

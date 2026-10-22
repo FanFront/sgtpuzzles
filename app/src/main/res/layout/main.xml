@@ -15,12 +15,14 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
+            android:layout_height="?attr/actionBarSize"
+            style="@style/ModernToolbar" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent"
                     android:id="@+id/mainLayout"
+                    android:background="@color/modern_background"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <name.boyle.chris.sgtpuzzles.buttons.ButtonsView
@@ -36,11 +38,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/buttons"
-            android:paddingBottom="4dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:background="@color/game_background"
-            android:textColor="@color/status_bar_text"
+            android:paddingTop="9dp"
+            android:paddingBottom="9dp"
+            android:paddingLeft="14dp"
+            android:paddingRight="14dp"
+            android:background="@color/modern_surface"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="13sp"
+            android:textColor="@color/modern_text_primary"
             android:importantForAccessibility="no"
             android:text="" />
 
@@ -49,9 +54,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/status_bar"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:background="@color/game_background">
+            android:background="@color/modern_game_canvas">
             <requestFocus/>
         </name.boyle.chris.sgtpuzzles.GameView>
 

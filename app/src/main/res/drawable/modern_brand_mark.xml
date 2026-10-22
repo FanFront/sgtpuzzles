@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Original vector identity; scalable and suitable for light and dark surfaces. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="60dp"
+    android:height="60dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path android:fillColor="#DBEAFE"
+        android:pathData="M11,3H29Q36,3 36,10V28Q36,35 29,35H11Q4,35 4,28V10Q4,3 11,3Z"/>
+    <path android:fillColor="#3276E9"
+        android:pathData="M11,17H27Q34,17 34,24V39Q34,46 27,46H11Q4,46 4,39V24Q4,17 11,17Z"/>
+    <path android:fillColor="#14B8A6"
+        android:pathData="M38,7H49Q59,7 59,17V28Q59,38 49,38H38Q30,38 30,30V15Q30,7 38,7Z"/>
+    <path android:fillColor="#8B5CF6"
+        android:pathData="M13,43H30Q36,43 36,49V54Q36,60 30,60H13Q7,60 7,54V49Q7,43 13,43Z"/>
+    <path android:fillColor="#F59E0B"
+        android:pathData="M57,50A10,10 0,1 1,37 50A10,10 0,1 1,57 50Z"/>
+</vector>
