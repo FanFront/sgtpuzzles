@@ -4,6 +4,8 @@
     <color name="game_background">#ff000000</color>
     <color name="status_bar_text">#ffffffff</color>
     <color name="webview_background">#ff000000</color>
+    <color name="modern_toolbar">#ff142034</color>
+    <color name="modern_toolbar_text">#fff3f8ff</color>
     <color name="modern_background">#ff111a29</color>
     <color name="modern_surface">#ff1a2738</color>
     <color name="modern_card_stroke">#ff2b3b50</color>

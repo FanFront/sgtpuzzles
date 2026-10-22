@@ -16,6 +16,8 @@
     <color name="chooser_current_background">#ffdeecff</color>
     <color name="action_bar_and_title_bar">#ffffffff</color>
     <color name="webview_background">#ffffffff</color>
+    <color name="modern_toolbar">#ff203047</color>
+    <color name="modern_toolbar_text">#fff7fbff</color>
     <color name="modern_background">#fff5f7fc</color>
     <color name="modern_surface">#ffffffff</color>
     <color name="modern_card_stroke">#ffe3eaf4</color>

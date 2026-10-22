@@ -13,10 +13,9 @@
         <item name="android:windowLightNavigationBar">@bool/modern_light_system_bars</item>
     </style>
     <style name="ModernToolbar">
-        <item name="android:background">@color/modern_surface</item>
-        <item name="titleTextColor">@color/modern_text_primary</item>
-        <item name="navigationIconTint">@color/modern_text_primary</item>
-        <item name="menuIconTint">@color/modern_text_primary</item>
+        <item name="android:background">@color/modern_toolbar</item>
+        <item name="titleTextColor">@color/modern_toolbar_text</item>
+        <item name="navigationIconTint">@color/modern_toolbar_text</item>
     </style>
     <style name="NoActionBar.Gameplay" parent="NoActionBar">
         <item name="android:windowBackground">@color/game_background</item>
